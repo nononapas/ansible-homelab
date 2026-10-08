@@ -1,0 +1,47 @@
+---
+- name: TP Handlers - challenge rsyslog
+  hosts: server1
+  connection: community.general.incus
+  become: true
+  tasks:
+
+    - name: Installer le paquet openssh-server
+      ansible.builtin.package:
+        name: openssh-server
+        state: present
+
+    - name: Activer le service SSH
+      ansible.builtin.service:
+        name: ssh
+        state: started
+        enabled: true
+
+    - name: Désactiver la connexion root via SSH
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin No'
+        state: present
+        backup: true
+      notify: Restart_sshd
+
+    - name: changer la config rsyslog
+      ansible.builtin.lineinfile:
+        path: /etc/rsyslog.d/50-default.conf
+        regexp: '^#cron\.\*'
+        line: 'cron.* /var/log/cron.log'
+        state: present
+        backup: yes
+      notify: Restart_rsyslog
+      
+
+  handlers:
+    - name: Restart_sshd
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+    
+    - name: Restart_rsyslog
+      ansible.builtin.service:
+        name: rsyslog
+        state: restarted

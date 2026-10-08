@@ -1,0 +1,12 @@
+[server]
+port = {{ app_port | default(8080) | int }}
+debug = {{ debug | default(false) | bool }}
+
+
+[application]
+environment = {{ app_environment| mandatory }}
+modules = {{ modules | join(',') }}
+
+{% for tag in tags | dict2items %}
+tag_{{ tag.key }} = {{ tag.value }}
+{% endfor %}

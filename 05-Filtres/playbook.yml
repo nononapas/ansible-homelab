@@ -1,0 +1,27 @@
+- name: Exemple de playbook avec filtres Jinja2
+  hosts: myhost
+  connection: community.general.incus
+  vars:
+    app_port: "8080"
+    debug: true
+    app_environment: production
+    modules: ['auth', 'web', 'api']
+    tags:
+      owner: devops
+      service: myapp
+  tasks:
+    - name: Générer le fichier de conf
+      ansible.builtin.template:
+        src: templates/config.ini.j2
+        dest: /tmp/config.ini
+        mode: "{{ mode | default(omit) }}"
+        owner: root
+        group: root
+
+    - name: Sauvegarder les variables YAML
+      ansible.builtin.copy:
+        content: "{{ vars | to_nice_yaml(indent=2) }}"
+        dest: /tmp/variables.yaml
+        mode: '0644'
+        owner: root
+        group: root

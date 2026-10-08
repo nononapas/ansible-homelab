@@ -1,0 +1,20 @@
+---
+- name: challenge02
+  hosts: localhost
+  connection: local
+  become: false
+  vars:
+    target_path: /tmp/config_ansible.txt
+    user_owner: "{{lookup('env','USER')}}"
+  tasks:
+      - name: ajouter le bloc
+        ansible.builtin.blockinfile:
+          path: "{{target_path}}"
+          block: |
+            param1 = valeur1
+            param2 = valeur2
+          marker: "# {mark} ANSIBLE MANAGED BLOCK"
+          create: yes
+          owner: "{{user_owner}}"
+          group: "{{user_owner}}"
+          mode: '0600'
