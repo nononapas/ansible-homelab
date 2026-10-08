@@ -1,0 +1,12 @@
+- name: Affichage avec étiquette personnalisée
+  hosts: localhost  # You need to specify hosts!
+  gather_facts: no  # Optional, since we're just using debug
+  tasks:
+    - name: Afficher les packages à installer
+      ansible.builtin.debug:
+        msg: "Installation de {{ item.pkg }}"
+      loop:
+        - { pkg: 'htop', id: 1 }
+        - { pkg: 'curl', id: 2 }
+      loop_control:
+        label: "{{ item.pkg }}"

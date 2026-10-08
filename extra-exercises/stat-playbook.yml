@@ -1,0 +1,39 @@
+---
+
+- name: boucle avec stat
+  hosts: all
+  #hosts: localhost  # You need to specify hosts!
+  #gather_facts: no  # Optional, since we're just using debug
+  tasks:
+  - name: boucle pour check si le fichier existe, et check la co mysql
+    ansible.builtin.stat:
+      path: /etc/passwdrug
+    register: file
+    until: file.stat.exists
+    retries: 5
+    delay: 6
+
+  - name: verifier le service apache
+    ansible.builtin.wait_for:
+      host: 127.0.0.1
+      port: 80
+      state: started
+    register: result
+    until: result is succeeded 
+    retries: 10
+    delay: 3
+
+  - name: Redémarrer les services actifs uniquement
+    ansible.builtin.service:
+      name: "{{ item.name }}"
+      state: restarted
+    loop:
+      - { name: 'apache2', actif: true }
+      - { name: 'mysql', actif: false }
+    when: item.actif
+    loop_control:
+      label: "{{ item.name }}"
+
+
+    
+      

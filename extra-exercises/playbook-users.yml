@@ -1,0 +1,15 @@
+---
+
+- name: Créer des utilisateurs a la volee
+  hosts: all
+  tasks: 
+    - name: users avec loop
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: present
+
+      loop:
+        - joe
+        - ethan
+        - coen
+

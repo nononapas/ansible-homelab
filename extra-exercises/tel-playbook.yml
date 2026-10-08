@@ -1,0 +1,16 @@
+---
+- name: test tel playbook
+  hosts: all
+  vars:
+    users:
+      alice:
+        name: Alice
+        telephone: 123-456-7890
+      bob:
+        name: Bob
+        telephone: 987-654-3210
+  tasks:
+  - name: Print phone records
+    ansible.builtin.debug:
+      msg="User {{ item.key }} is {{ item.value.name }} ({{ item.value.telephone }})"
+    with_dict: "{{users}}"

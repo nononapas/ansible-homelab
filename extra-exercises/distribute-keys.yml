@@ -1,0 +1,45 @@
+---
+
+- name: distribuer les clés ssh des comptes
+  hosts: all
+  become: yes
+  vars:
+    keys:
+      - "{{ lookup('file', '~/.ssh/joe_key.pub')}}"
+      - "{{ lookup('file', '~/.ssh/ethan_key.pub')}}"
+      - "{{ lookup('file', '~/.ssh/coen_key.pub')}}"
+    users:
+      - joe
+      - ethan
+      - coen
+  
+  tasks:
+    - name: créer les dossiers .ssh dans les home users
+      ansible.builtin.file:
+        path: "/home/{{ item }}/.ssh/"
+        state: directory
+        mode: '0700'
+      loop: "{{ users }}"
+
+    - name: créer fichiers authorized_keys
+      ansible.builtin.file:
+        path: "/home/{{ item }}/.ssh/authorized_keys"
+        state: touch
+        mode: '0600'
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        access_time: preserve
+        modification_time: preserve
+      loop: "{{ users }}"
+        
+
+    - name: distribuer avec builtinline
+      ansible.builtin.lineinfile:
+        path: "/home/{{ item[0] }}/.ssh/authorized_keys"
+        line: "{{ item[1] }}"
+        state: present
+        create: no
+
+      with_nested:
+        - "{{users}}"
+        - "{{keys}}"

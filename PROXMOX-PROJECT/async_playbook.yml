@@ -1,0 +1,21 @@
+---
+- name: Execution asynchrone depuis un playbook
+  hosts: all
+  # forks: 2
+  gather_facts: false
+  tasks:
+    - name: Tache longue en arriere plan
+      ansible.builtin.shell: "sleep 100"
+      async: 10
+      poll: 0
+      register: job
+      # throttle: 2
+      failed_when: job.rc != 0
+
+    - name: Attendre la fin de la tache
+      ansible.builtin.async_status:
+        jid: "{{ job.ansible_job_id }}"
+      register: job_status
+      until: job_status.finished
+      retries: 30
+      delay: 10

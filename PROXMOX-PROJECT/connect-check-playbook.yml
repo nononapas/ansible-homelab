@@ -1,0 +1,10 @@
+---
+- name: Check connectivite
+  hosts: ct00
+  tasks:
+    - name: Avec wait for
+      ansible.builtin.wait_for:
+        host: 192.168.1.153
+        port: 22
+        timeout: 10
+      delegate_to: localhost
