@@ -1,0 +1,6 @@
+{
+  "general": {
+    "environment": "staging",
+    "role": "webserver"
+  }
+}

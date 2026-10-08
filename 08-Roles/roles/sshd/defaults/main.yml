@@ -1,0 +1,4 @@
+---
+sshd_package: openssh-server
+permit_root_login: 'no'
+sshd_service: ssh

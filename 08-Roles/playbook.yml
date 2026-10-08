@@ -1,0 +1,10 @@
+---
+- name: Test du rôle sshd avec surcharge
+  hosts: servers
+  become: true
+  roles:
+    - role: sshd
+      vars:
+        permit_root_login: no
+
+    - role: rsyslog

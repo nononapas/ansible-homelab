@@ -1,0 +1,57 @@
+---
+- name: Bloc principal
+  hosts: all
+  become: true
+  connection: community.general.incus
+  tasks:
+    - name: Bloc installation et configuration
+      block:
+        - name: Installer fail2ban
+          ansible.builtin.package:
+            name: fail2ban
+            state: present
+
+        - name: Déployer jail.local personnalisé
+          ansible.builtin.copy:
+            src: /etc/fail2ban/jail.conf
+            dest: /etc/fail2ban/jail.local
+            remote_src: true
+
+        - name: Modifier la configuration
+          ansible.builtin.lineinfile:
+            path: /etc/fail2ban/jail.local
+            regexp: '^backend = %\(sshd_backend\)s'
+            line: 'backend = systemd'
+          notify: Redémarrer fail2ban
+
+      rescue:
+        - name: Échec installation ou configuration fail2ban
+          ansible.builtin.debug:
+            msg: "L'installation de fail2ban a échoué"
+
+    - name: Bloc vérification du service
+      block:
+        - name: Vérifier que fail2ban est actif
+          ansible.builtin.service:
+            name: fail2ban
+            state: started
+            enabled: true
+
+      rescue:
+        - name: Service fail2ban injoignable
+          ansible.builtin.debug:
+            msg: "le service fail2ban n'est pas opérationnel"
+
+      always:
+        - name: Écrire le statut final dans /tmp/fail2ban_status.log
+          ansible.builtin.copy:
+            content: |
+              C'est beau la vie avec fail2ban, meme si ca ne sert a rien.
+            dest: /tmp/fail2ban_status.log
+            mode: '0640'
+
+  handlers:
+    - name: Redémarrer fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted

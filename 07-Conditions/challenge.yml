@@ -1,0 +1,28 @@
+---
+- name: Challenge
+  hosts: all
+  gather_facts: true
+  become: yes
+  tasks:
+  
+    - name: liste les groupes et gather le result
+      ansible.builtin.shell: 'getent group | cut -d: -f1'
+      register: existing_groups
+  
+    - name: debug pour voir le resultat
+      ansible.builtin.debug:
+        msg: "voici les groupes {{existing_groups.stdout_lines}}"
+
+    - name: creer le groupe developer ssi nexiste pas
+      ansible.builtin.group:
+        name: developers
+        state: present
+      when: "'developers' not in existing_groups.stdout_lines"
+
+    - name: creer le fichier tmp ssi distribution est ubuntu ET developers existe
+      ansible.builtin.copy:
+        src: flag_condition.txt
+        dest: /tmp/flag_condition.txt
+      when:
+        - "'developers' is in existing_groups.stdout_lines"
+        - ansible_distribution == "Ubuntu"

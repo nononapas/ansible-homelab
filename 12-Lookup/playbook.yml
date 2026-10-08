@@ -1,0 +1,43 @@
+---
+- name: Utiliser lookup en local pour s'exercer
+  connection: local
+  hosts: localhost
+  gather_facts: false
+  vars:
+    resultat: "{{ lookup('ansible.builtin.csvfile', 'bar', file='data.csv', delimiter=',', col=1, keycol=0) }}"
+  tasks:
+    - name: Lire le README
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.file', './README.md') }}"
+
+    - name: Lire la variable env HOME
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+
+    - name: Generer mot de passe secure 16 char
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.password', '/dev/null length=16') }}"
+
+    - name: Liter les fichiers *.conf
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.fileglob', '/etc/*.conf') }}"
+
+    - name:
+        Extraire la valeur bar dans le CSV ou mettre dans variable
+        # ansible.builtin.debug:
+        # msg: "{{ lookup('ansible.builtin.csvfile', 'bar', file='data.csv', delimiter=',', col=1, keycol=0) }}"
+      ansible.builtin.debug:
+        msg: "{{ resultat }}"
+    - name: Lire la version du json
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.file', 'info.json') | from_json | json_query('version') }}"
+
+    - name: Trouve le premier fichier de configuration
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.first_found', files=['conf.d/default.cfg', 'conf.d/prod.cfg']) }}"
+
+    - name: Generer conf template jinja2
+      ansible.builtin.template:
+        src: config.ini.j2
+        dest: /tmp/config.ini
+        mode: "0644"

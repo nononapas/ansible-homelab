@@ -1,0 +1,35 @@
+---
+- name: inclure les variables propres a la distribution
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+      - "{{ ansible_distribution | lower }}.yml"
+      - "default.yml"
+      skip: true
+
+- name: Installer rsyslog
+  ansible.builtin.package:
+    name: rsyslog
+    state: present
+
+- name: demarrer le service
+  ansible.builtin.service:
+    name: rsyslog
+    state: started
+    enabled: yes
+
+- name: decommenter /var/log/cron.log dans rsyslog default conf
+  ansible.builtin.lineinfile:
+    path: "{{path}}"
+    regexp: '^#cron\.\*'
+    line: 'cron.* /var/log/cron.log'
+    backrefs: yes
+  notify: restart rsyslog
+
+#- name: verifier que le fichier existe
+#  ansible.builtin.file:
+#    file: /etc/rsyslog.d/50-default.conf
+#    state: touch
+#    owner: root
+#    group: syslog
+#    mode: '0640'

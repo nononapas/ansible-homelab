@@ -1,0 +1,14 @@
+---
+plugin: kmpm.incus.incus
+filters:
+- status == "Running"
+groupby:
+  debian:
+    type: os
+    attribute: Debian
+  web:
+    type: pattern
+    attribute: '^web'
+  db:
+    type: pattern
+    attribute: '^db'

@@ -1,0 +1,24 @@
+---
+
+- name: Déployer custom fact INI
+  hosts: all
+  become: true
+  tasks:
+    - name: Créer le path le fichier facts
+      ansible.builtin.file:
+        path: /etc/ansible/facts.d/
+        state: directory
+        mode: '0755'
+
+    - name: Copier le fichier dans la destination
+      ansible.builtin.copy:
+        src: files/infos.fact
+        dest: /etc/ansible/facts.d/
+        mode: '0644'
+
+    - name: Tache test pour condition when
+      ansible.builtin.file:
+        path: /tmp/test
+        state: touch
+        mode: '0600'
+      when: ansible_local.infos.general.environment == "staging"

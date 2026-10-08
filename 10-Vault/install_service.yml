@@ -1,0 +1,7 @@
+---
+- name: TP vault - Installer un service avec des données sensibles
+  hosts: all
+  tasks:
+    - name: afficher le mdp
+      debug:
+        msg: "le mot de passe est le suivant : {{ database_password }}"

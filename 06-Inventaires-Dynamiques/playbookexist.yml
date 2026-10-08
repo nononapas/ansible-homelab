@@ -1,0 +1,23 @@
+- name: test si le fichier existe
+  hosts: myhost  # Make sure this matches
+  connection: community.general.incus
+  tasks:
+    - name: test si le fichier existe
+      ansible.builtin.shell: cat /etc/hosts
+      register: contenu_hosts
+
+    - name: chercher une IP
+      ansible.builtin.debug:
+        msg: "l'adresse IP a été trouvée"
+      when: "'127.0.0.1' in contenu_hosts.stdout"
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Vérifier que nginx est installé
+      ansible.builtin.assert:
+        that:
+          - "'nginx' in ansible_facts.services"  # CHANGED THIS LINE!
+        fail_msg: "nginx n’est pas installé"
+        success_msg: "nginx détecté"
+        ignore_errors: yes

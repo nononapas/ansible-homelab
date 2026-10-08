@@ -1,0 +1,46 @@
+---
+- name: TP Blocks - Gestion du service SSH
+  hosts: all
+  tasks:
+    - name: Gérer le service SSH sur Debian
+      when: ansible_os_family == 'Debian'
+      become: true
+      tags: ssh
+      block:
+
+        - name: commande qui va fail
+          ansible.builtin.command:
+            cmd: /bin/commande-inexistante
+
+        - name: cette tache ne sera pas execute
+          ansible.builtin.debug:
+            msg: "l'échec est volontaire, le bloc rescue prend le relais"
+
+      rescue: 
+        - name: afficher le message d'erreur
+          ansible.builtin.debug:
+            msg: "activer le plan B !"
+
+        - name: tache pour contourner le probleme
+          ansible.builtin.file:
+            path: /tmp/plan_b.txt
+            state: touch
+            mode: '0644' 
+      
+      always:
+        - name: nettoyage apres execution
+          ansible.builtin.debug:
+            msg: "Nettoyage terminé, fin du bloc"
+
+
+        - name: Installer le paquet openssh-server
+          ansible.builtin.package:
+            name: openssh-server
+            state: present
+
+        - name: Modifier la configuration SSH
+          ansible.builtin.lineinfile:
+            path: /etc/ssh/sshd_config
+            regexp: '^PermitRootLogin'
+            line: 'PermitRootLogin no'
+            state: present
